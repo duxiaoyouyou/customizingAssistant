@@ -59,7 +59,7 @@ def main():
     
     # unit test
     feedback = show_code_and_get_feedback(customized_code)
-    # feedback = "add a ut method for the code"  
+    # feedback = "add a ut method for the code with imports"  
     ut_code = codeGenerator.generate_code(feedback)  
     
     display_code(ut_code)
