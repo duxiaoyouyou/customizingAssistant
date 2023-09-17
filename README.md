@@ -1,0 +1,1 @@
+'{\n    // Assuming Bin is an object that contains some data\n    // Assuming DisplayObj is an object that can be created from Bin\n\n    // Create a new DisplayObj from Bin\n    DisplayObj displayObj = new DisplayObj(bin);\n\n    // Return the created DisplayObj\n    return displayObj;\n}'
