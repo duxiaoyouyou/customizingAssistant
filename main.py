@@ -46,22 +46,26 @@ def main():
       
     gptConnector = GPTConnector(messages)
     codeGenerator = CodeGenerator(method_signature, gptConnector)
+    integrator = CodeIntegrator(file_path) 
     
+    # generate code
     customized_code = codeGenerator.generate_code(requirement);
     
-    # Show the generated code and get feedback  
+    # generate comments
     feedback = show_code_and_get_feedback(customized_code)
-    #feedback = "add comments on the generated code."  
-    
+    # feedback = "add more comments."  
     customized_code = codeGenerator.generate_code(feedback)  
-    feedback = show_code_and_get_feedback(customized_code)
-    #feedback = "add a ut method based on the generated code"  
-    ut_code = codeGenerator.generate_code(feedback)  
-    display_code(ut_code)
-
-    integrator = CodeIntegrator(file_path)   
     integrator.integrate_enhancement(class_name, method_name, customized_code) 
-        
+    
+    # unit test
+    feedback = show_code_and_get_feedback(customized_code)
+    # feedback = "add a ut method for the code"  
+    ut_code = codeGenerator.generate_code(feedback)  
+    
+    display_code(ut_code)
+  
+    integrator.add_method_to_class(class_name, ut_code)
+    
     file_dir = os.path.dirname(file_path)  
     file_name = os.path.basename(file_path) 
     backup_directory = os.path.join(file_dir, "customization")   
