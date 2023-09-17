@@ -48,12 +48,13 @@ def main():
     
     # Show the generated code and get feedback  
     feedback = show_code_and_get_feedback(customized_code)
-    #feedback = "Can you add detailed comments on the generated code to make it more readable?"  
+    #feedback = "add comments on the generated code."  
     
     customized_code = codeGenerator.generate_code(feedback)  
     feedback = show_code_and_get_feedback(customized_code)
-    #feedback = "Add a unit test method based on the code generated."  
+    #feedback = "add a ut method based on the generated code"  
     ut_code = codeGenerator.generate_code(feedback)  
+    display_code(ut_code)
 
     integrator = CodeIntegrator(file_path)   
     integrator.integrate_enhancement(class_name, method_name, customized_code) 
@@ -85,26 +86,29 @@ def get_method_signature(file_path, class_name, method_name):
         return None  
 
 
-def show_code_and_get_feedback(code):  
-        root = tk.Tk()  
-        root.withdraw()  # Hide the main window  
-  
-        # Show the generated code  
-        messagebox.showinfo("Generated Code", code)  
-  
-        # Get feedback from the user  
-        feedback = simpledialog.askstring("Feedback", "Please enter your feedback:")  
-  
-        root.destroy()  # Destroy the main window  
-        return feedback
+def show_code_and_get_feedback(code): 
+    if code == None:
+        return None
+    
+    root = tk.Tk()  
+    root.withdraw()  # Hide the main window  
+    
+    messagebox.showinfo("Generated Code", code)  
+     
+    feedback = simpledialog.askstring("Feedback", "Please enter your feedback:")  
+    root.destroy()  # Destroy the main window  
+    
+    return feedback
     
   
-def show_code_and_get_feedback(code):  
-        root = tk.Tk()  
-        root.withdraw()  # Hide the main window  
-  
-        # Show the generated code  
-        messagebox.showinfo("Generated Code", code)  
+def display_code(code):  
+    if code == None:
+        pass
+    
+    root = tk.Tk()  
+    root.withdraw()  # Hide the main window  
+
+    messagebox.showinfo("Generated Code", code)  
   
     
     

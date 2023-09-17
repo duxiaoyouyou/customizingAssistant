@@ -7,6 +7,8 @@ import stat
 import filecmp
 from termcolor import colored
 from .text_to_speech import TextToSpeech
+import ctypes
+  
   
 class VersionManager:  
     def __init__(self, code_directory, backup_directory, file_name):  
@@ -50,16 +52,20 @@ class VersionManager:
             customer_file = os.path.join(self.backup_directory, filename)
             sap_file = os.path.join(self.code_directory,filename)
             if self.are_files_equal(sap_file, customer_file) == False:
-                text = "\nDetected file: " + filename +" has been changed! Start restoring..."
+                text = "\nDetected file: " + filename +" has been changed!"
                 print(colored(text,'yellow'))  
                 tts = TextToSpeech(text)
                 tts.convert_text_to_speech()
-    
-                shutil.copy(os.path.join(self.backup_directory, filename), self.code_directory)
-                text = "\nFile: " + filename +" successfully restored to customizated version!\n"
-                print(colored(text,'blue'))  
-                tts = TextToSpeech(text)
-                tts.convert_text_to_speech()
+
+                # Ask the user if they want to restore the file    
+                result = ctypes.windll.user32.MessageBoxW(0, f"Do you want to restore {filename}?", "Restore File", 1)  
+                if result == 1:  # If the user clicked "OK"  
+                    shutil.copy(os.path.join(self.backup_directory, filename), self.code_directory)    
+                    text = "\nFile: " + filename +" successfully restored to customizated version!\n"    
+                    print(colored(text,'blue'))      
+                    tts = TextToSpeech(text)    
+                    tts.convert_text_to_speech() 
+                    
         shutil.rmtree(self.backup_directory)  
  
     

@@ -12,6 +12,9 @@ class CodeGenerator:
         
   
     def generate_code(self, requirement):
+        if(requirement == None):
+            return None
+        
         text = "\nStart generating code based on user's requirement... \n"
         print(colored(text, 'blue'))
         tts = TextToSpeech(text)  
