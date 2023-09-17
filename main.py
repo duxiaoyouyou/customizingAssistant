@@ -7,6 +7,7 @@ import javalang
 from src.voice_collector import VoiceCollector
 from flask import Flask, render_template 
 from src.voice_input_ui import VoiceInputUI
+from src.gpt_connector import GPTConnector
 import tkinter as tk
 
 
@@ -24,18 +25,28 @@ def main():
     window.mainloop()  
       
     # Get voice input from user  
-    voice_input = voiceInputUI.voice_input
-    
-    
-    # voice_input =  " We have to move 60 handling units from storage bin C to storage bin D in warehouse 100. " \
-    #      f"This should be completed by 8 p.m. tomorrow." \
-    #      f"Therefore, I need you to create a warehouse task for me."
+    #voice_input = #voiceInputUI.voice_input
+    voice_input =  " We have to move 60 handling units from storage bin C to storage bin D in warehouse 100. " \
+         f"This should be completed by 8 p.m. tomorrow." \
+         f"Therefore, I need you to create a warehouse task for me."
            
     requirement = voice_input + "in the method: " + method_signature
     requirement += ".\nEnsure only standard EWM fields are included."      
          
-    codeGenerator = CodeGenerator(requirement, method_signature)
-    customized_code = codeGenerator.generate_code();
+         
+    system_message = f"You are a very senior JAVA developer." \
+        f"You will simply generate the jave codes." \
+                f"You will NOT generate the method signature, returning statement, big brackets, or comments. " 
+    messages = [{"role": "system", "content": system_message}]  
+    
+      
+    gptConnector = GPTConnector(messages)
+    codeGenerator = CodeGenerator(method_signature, gptConnector)
+    
+    customized_code = codeGenerator.generate_code(requirement);
+
+    feedback = "Can you add detailed comments on the generated code to make it more readable?"  
+    customized_code = codeGenerator.generate_code(feedback)  
 
     integrator = CodeIntegrator(file_path)   
     integrator.integrate_enhancement(class_name, method_name, customized_code) 

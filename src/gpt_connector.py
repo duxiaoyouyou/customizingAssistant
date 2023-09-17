@@ -7,7 +7,7 @@ from .text_to_speech import TextToSpeech
 
 class GPTConnector:
     
-    def __init__(self, system_message):  
+    def __init__(self, messages):  
         self.api_endpoint = "https://azure-openai-serv-i057149.cfapps.sap.hana.ondemand.com/api/v1/completions"
         self.authentication_url = "https://ewm.authentication.sap.hana.ondemand.com"
         self.client_id = "sb-2401ff09-f941-49f2-aca4-60e1589b2cc0!b2609|azure-openai-service-i057149-xs!b16730"
@@ -15,8 +15,8 @@ class GPTConnector:
         self.deployment_id = "gpt-4-32k"
         self.max_tokens = 16000
         self.temperature = 0.01
-        self.system_message = system_message
-        
+        self.messages = messages 
+         
         
     def get_access_token(self):
         print(colored("\nGetting access token to connect to BTP LLM...", 'green'))
@@ -31,28 +31,26 @@ class GPTConnector:
     
     def transform(self, requirement):  
         accessToken = self.get_access_token()   
-        
         print(colored("\nAccess token got, start transforming requirement to code...", 'blue'))
-        print(accessToken)
-        
         headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} 
 
-        prompt =  "Generate the java code block to fulfill the requirement: " + requirement  + ".\n" \
+        requirement =  "Generate the java code block to fulfill the requirement: " + requirement 
+        self.messages.append({"role": "user", "content": requirement})  
     
         data = {    
             "deployment_id": self.deployment_id,     
             "max_tokens": self.max_tokens,  
             "temperature": self.temperature,   
-            "messages": [  
-                {"role": "system", "content": self.system_message},
-                {"role": "user", "content":  prompt}  
-            ] 
+            "messages": self.messages
         }   
         
         response = requests.post(self.api_endpoint, headers=headers, data=json.dumps(data))    
         response_json = response.json()    
         content = response_json['choices'][0]['message']['content']    
         
+        # Save the assistant's message to be the context
+        self.messages.append({"role": "assistant", "content": content})  
+         
         text = "\nCode generated as below: "
         print(colored(text, 'blue'))
         tts = TextToSpeech(text)  
