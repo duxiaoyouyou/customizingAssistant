@@ -9,6 +9,7 @@ from flask import Flask, render_template
 from src.voice_input_ui import VoiceInputUI
 from src.gpt_connector import GPTConnector
 import tkinter as tk
+from tkinter import simpledialog, messagebox 
 
 
 
@@ -44,9 +45,15 @@ def main():
     codeGenerator = CodeGenerator(method_signature, gptConnector)
     
     customized_code = codeGenerator.generate_code(requirement);
-
-    feedback = "Can you add detailed comments on the generated code to make it more readable?"  
+    
+    # Show the generated code and get feedback  
+    feedback = show_code_and_get_feedback(customized_code)
+    #feedback = "Can you add detailed comments on the generated code to make it more readable?"  
+    
     customized_code = codeGenerator.generate_code(feedback)  
+    feedback = show_code_and_get_feedback(customized_code)
+    #feedback = "Add a unit test method based on the code generated."  
+    ut_code = codeGenerator.generate_code(feedback)  
 
     integrator = CodeIntegrator(file_path)   
     integrator.integrate_enhancement(class_name, method_name, customized_code) 
@@ -77,7 +84,30 @@ def get_method_signature(file_path, class_name, method_name):
     
         return None  
 
+
+def show_code_and_get_feedback(code):  
+        root = tk.Tk()  
+        root.withdraw()  # Hide the main window  
   
+        # Show the generated code  
+        messagebox.showinfo("Generated Code", code)  
+  
+        # Get feedback from the user  
+        feedback = simpledialog.askstring("Feedback", "Please enter your feedback:")  
+  
+        root.destroy()  # Destroy the main window  
+        return feedback
+    
+  
+def show_code_and_get_feedback(code):  
+        root = tk.Tk()  
+        root.withdraw()  # Hide the main window  
+  
+        # Show the generated code  
+        messagebox.showinfo("Generated Code", code)  
+  
+    
+    
 if __name__ == '__main__':  
     #app.run(debug=True) 
     main() 
