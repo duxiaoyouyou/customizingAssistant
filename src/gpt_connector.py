@@ -49,7 +49,7 @@ class GPTConnector:
         content = response_json['choices'][0]['message']['content']    
         
         # Save the assistant's message to be the context
-        self.messages.append({"role": "assistant", "content": content})  
+        self.messages.append({"role": "assistant", "content":  content})  
          
         text = "\nCode generated as below: "
         print(colored(text, 'blue'))

@@ -37,16 +37,19 @@ def main():
     requirement = voice_input + "in the method: " + method_signature
     requirement += ".\nEnsure only standard EWM fields are included."      
          
+    integrator = CodeIntegrator(file_path) 
          
-    system_message = f"You are a very senior JAVA developer." \
-        f"You will simply generate the jave codes." \
-                f"You will NOT generate the method signature, returning statement, big brackets, or comments. " 
+    system_message = f"You will simply generate the jave codes." \
+                f"You will NOT generate the method signature, returning statement, or big brackets. "  \
+                    f"Everytime the newly generated code MUST be compliant with the original code. " 
     messages = [{"role": "system", "content": system_message}]  
+    
+    original_code = integrator.read_method_code(class_name, method_name)
+    messages.append({"role": "assistant", "content": "original code: \n" + original_code})  
     
       
     gptConnector = GPTConnector(messages)
     codeGenerator = CodeGenerator(method_signature, gptConnector)
-    integrator = CodeIntegrator(file_path) 
     
     # generate code
     customized_code = codeGenerator.generate_code(requirement);

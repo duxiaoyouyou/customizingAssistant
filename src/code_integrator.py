@@ -52,4 +52,23 @@ class CodeIntegrator:
             new_content = re.sub(pattern, replacer, content)    
   
             self._update_file(new_content)  
+            
+            
+    def read_method_code(self, class_name, method_name):  
+        with open(self.file_path, 'r') as file:  
+            content = file.read()  
+    
+            # Define pattern  
+            pattern = re.compile(r'(class\s+' + class_name + r'.*?public\s+.*?\s+' + method_name + r'\(.*?\)\s*\{)(.*?)(\}\s*\Z)', re.DOTALL)  
+    
+            # Search for the pattern  
+            match = re.search(pattern, content)  
+    
+            if match:  
+                # If the method is found, return its code  
+                return match.group(2)  
+            else:  
+                # If the method is not found, return an appropriate message  
+                return "Method not found."  
+
    
