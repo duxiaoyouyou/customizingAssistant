@@ -11,7 +11,9 @@ from src.gpt_connector import GPTConnector
 import tkinter as tk
 from tkinter import simpledialog, messagebox 
 
-
+from tkinter import Text, Scrollbar, Button, Entry, Label, Toplevel, END  
+from tkinter.font import Font  
+  
 
 def main():
     print(colored("\nCustomizing assistant is starting...\n", 'green'))
@@ -22,6 +24,7 @@ def main():
     method_signature = get_method_signature(file_path, class_name, method_name) 
     
     window = tk.Tk()  
+    window.attributes('-topmost', True)   
     voiceInputUI = VoiceInputUI(window)  
     window.mainloop()  
       
@@ -84,33 +87,58 @@ def get_method_signature(file_path, class_name, method_name):
                 return f"{return_type} {class_name}.{method_name}({params})"  
     
         return None  
+    
+
+def show_code_and_get_feedback(code):     
+    if code is None:    
+        return None    
+    
+    root = tk.Tk()      
+    root.title("Generated Code")    
+    
+    # Use a larger font for the code and feedback prompt    
+    font = Font(family="Courier New", size=12)    
+    
+    # Create a Text widget to display the code    
+    text = Text(root, width=80, height=20, font=font)    
+    text.insert(END, code)    
+    text.pack(side="left", fill="both", expand=True)    
+    
+    # Create a Scrollbar widget for the Text widget    
+    scrollbar = Scrollbar(root, command=text.yview)    
+    scrollbar.pack(side="left", fill="y")    
+    
+    # Link the Text widget and the Scrollbar widget    
+    text.config(yscrollcommand=scrollbar.set)    
+    
+    # Create a Label widget for the feedback prompt    
+    label = Label(root, text="Please enter your feedback:", font=font)    
+    label.pack()    
+    
+    # Create a Text widget for the feedback input    
+    feedback_input = Text(root, width=40, height=10, font=font, wrap="word")    
+    feedback_input.pack()    
+    
+    # Create a Button widget to submit the feedback    
+    button = Button(root, text="Submit", command=root.quit)    
+    button.pack(side='right')    
+    
+    root.mainloop()      
+    
+    # Get the feedback from the Text widget    
+    feedback = feedback_input.get("1.0", "end-1c")    
+    
+    root.destroy()      
+    return feedback    
 
 
-def show_code_and_get_feedback(code): 
-    if code == None:
-        return None
-    
-    root = tk.Tk()  
-    root.withdraw()  # Hide the main window  
-    
-    messagebox.showinfo("Generated Code", code)  
-     
-    feedback = simpledialog.askstring("Feedback", "Please enter your feedback:")  
-    root.destroy()  # Destroy the main window  
-    
-    return feedback
-    
-  
 def display_code(code):  
     if code == None:
         pass
-    
     root = tk.Tk()  
     root.withdraw()  # Hide the main window  
-
     messagebox.showinfo("Generated Code", code)  
-  
-    
+
     
 if __name__ == '__main__':  
     #app.run(debug=True) 

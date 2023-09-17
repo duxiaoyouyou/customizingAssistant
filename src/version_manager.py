@@ -58,7 +58,7 @@ class VersionManager:
                 tts.convert_text_to_speech()
 
                 # Ask the user if they want to restore the file    
-                result = ctypes.windll.user32.MessageBoxW(0, f"Do you want to restore {filename}?", "Restore File", 1)  
+                result = ctypes.windll.user32.MessageBoxW(0, f"Do you want to restore {filename}?", "Restore File", 1 + 4096)  
                 if result == 1:  # If the user clicked "OK"  
                     shutil.copy(os.path.join(self.backup_directory, filename), self.code_directory)    
                     text = "\nFile: " + filename +" successfully restored to customizated version!\n"    
