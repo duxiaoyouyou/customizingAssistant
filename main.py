@@ -13,6 +13,11 @@ from tkinter import simpledialog, messagebox
 
 from tkinter import Text, Scrollbar, Button, Entry, Label, Toplevel, END  
 from tkinter.font import Font  
+
+from update_checker import UpdateChecker
+from update_interpreter import UpdateInterpreter
+from impact_analyzer import ImpactAnalyzer
+from compatibility_checker  import CompatibilityChecker
   
 
 def main():
@@ -79,6 +84,19 @@ def main():
     # simulating version upgrade....
     
     manager.restore_code()  
+   
+    checker = UpdateChecker('http://example.com/update')  
+    update_content = checker.get_update_content()  
+      
+    interpreter = UpdateInterpreter()  
+    update_interpretation = interpreter.interpret_update(update_content)  
+     
+    custom_code = "your_custom_code_here"  
+    analyzer = ImpactAnalyzer(custom_code)  
+    analyzer.analyze_impact(update_interpretation)  
+     
+    checker = CompatibilityChecker(custom_code, update_interpretation)  
+    checker.check_compatibility()  
 
 
 def get_method_signature(file_path, class_name, method_name):  
