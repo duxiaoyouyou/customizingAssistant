@@ -71,20 +71,20 @@ class CodeIntegrator:
                 # If the method is not found, return an appropriate message  
                 return "Method not found."  
 
-
-    def replace_method_code(self, class_name, method_name, new_code_block):  
+  
+ 
+    def replace_method(self, class_name, method_signature, new_code_block):  
+          
         with open(self.file_path, 'r') as file:  
-            content = file.read()  
+            original_code = file.read()  
     
-            # Define pattern  
-            pattern = re.compile(r'(class\s+' + class_name + r'.*?public\s+.*?\s+' + method_name + r'\(.*?\)\s*\{)(.*?)(\}\s*\Z)', re.DOTALL)  
-    
-            # Replace the old code block with the new one  
-            def replacer(match):  
-                return match.group(1) + "\n" + new_code_block + "\n" + match.group(3)  
-    
-            new_content = re.sub(pattern, replacer, content)  
-    
-            self._update_file(new_content)  
+        original_method_pattern = r"(public\s+DisplayObj\s+getBinObj\(Bin\s+bin\)\s*\{)[^\}]*\}"  
 
-   
+        new_method_code = r"\1" + new_code_block + " }"  
+     
+        new_code = re.sub(original_method_pattern, new_method_code, original_code, flags=re.DOTALL)  
+    
+        with open(self.file_path, 'w') as file:  
+            file.write(new_code)  
+
+

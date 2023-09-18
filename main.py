@@ -13,11 +13,6 @@ from tkinter import simpledialog, messagebox
 from tkinter import Text, Scrollbar, Button, Entry, Label, Toplevel, END  
 from tkinter.font import Font  
 
-# from src.update_checker import UpdateChecker
-# from src.update_interpreter import UpdateInterpreter
-# from src.impact_analyzer import ImpactAnalyzer
-# from src.compatibility_checker  import CompatibilityChecker
-  
 
 def main():
     print(colored("\nCustomizing assistant is starting...\n", 'green'))
@@ -55,15 +50,15 @@ def main():
         5. Ensure there are no bugs or security issues in the code \
         6. Ensure only standard EWM fields are included \
             
-        # \"\"\"    {requirement} \"\"\" \
-            
+
         Examples delimited by triple hyphens
         --- 
             Requirement: simply return null
             code generated: return null
             Requirement: get the current time
             code generated: Instant currentTime = Instant.now()
-        ---      \
+            Requirement: \"\"\"  {requirement} \"\"\" \
+        ---     
         
        """   
      
@@ -83,20 +78,20 @@ def main():
         1. If the user wants to replace his code with the newly generated code, simply return \"replace\". \
         2. If the user does not want to take the new code, simply return \"keep\". \      
        
-        \"\"\" {feedback} \"\"\"      
         
-        Examples delimited by triple hyphens
+        Examples delimited by triple hyphens \
         --- 
-            feedback: Fine, I will take the new code
-            answer: replace
-            feedback: I want to discard the new code
-            answer: keep
+            feedback: Fine, I will take the new code \
+            answer: replace \
+            feedback: I want to discard the new code \
+            answer: keep \
+            feedback: \"\"\" {feedback} \"\"\" \
         --- 
        """
     command = codeGenerator.generate_code(prompt)
     if "replace" in command:
         integrator = CodeIntegrator(file_path) 
-        integrator.replace_method_code(class_name, method_name, customized_code)
+        integrator.replace_method(class_name, method_signature, customized_code)
     
     file_dir = os.path.dirname(file_path)  
     file_name = os.path.basename(file_path) 
@@ -108,82 +103,66 @@ def main():
     # rolling back the code to simulate version upgrade....
     
     manager.restore_code()  
-   
- 
-def judge_compatibility():
-    pass
-    # checker = UpdateChecker('http://example.com/update')  
-    # update_content = checker.get_update_content()  
-      
-    # interpreter = UpdateInterpreter()  
-    # update_interpretation = interpreter.interpret_update(update_content)  
-     
-    # custom_code = "your_custom_code_here"  
-    # analyzer = ImpactAnalyzer(custom_code)  
-    # analyzer.analyze_impact(update_interpretation)  
-     
-    # checker = CompatibilityChecker(custom_code, update_interpretation)  
-    # checker.check_compatibility()  
-    
 
 
 
 def get_method_signature(file_path, class_name, method_name):  
-        with open(file_path, 'r') as file:  
-            java_code = file.read()  
-    
-        tree = javalang.parse.parse(java_code)  
-    
-        for path, node in tree.filter(javalang.tree.MethodDeclaration):  
-            if node.name == method_name:  
-                params = ', '.join(param.type.name for param in node.parameters)  
-                return_type = node.return_type.name if node.return_type else 'void'  
-                return f"{return_type} {class_name}.{method_name}({params})"  
-    
-        return None  
+    with open(file_path, 'r') as file:  
+        java_code = file.read()  
+  
+    tree = javalang.parse.parse(java_code)  
+  
+    for path, node in tree.filter(javalang.tree.MethodDeclaration):  
+        if node.name == method_name:  
+            params = ', '.join(f"{param.type.name} {param.name}" for param in node.parameters)  
+            return_type = node.return_type.name if node.return_type else 'void'  
+            return f"{return_type} {class_name}.{method_name}({params})"  
+  
+    return None  
+
     
 
-def show_code_and_get_feedback(code):     
-    if code is None:    
-        return None    
-    
-    root = tk.Tk()      
-    root.title("Generated Code")    
-    
-    # Use a larger font for the code and feedback prompt    
-    font = Font(family="Courier New", size=12)    
-    
-    # Create a Text widget to display the code    
-    text = Text(root, width=80, height=20, font=font)    
-    text.insert(END, code)    
-    text.pack(side="left", fill="both", expand=True)    
-    
-    # Create a Scrollbar widget for the Text widget    
-    scrollbar = Scrollbar(root, command=text.yview)    
-    scrollbar.pack(side="left", fill="y")    
-    
-    # Link the Text widget and the Scrollbar widget    
-    text.config(yscrollcommand=scrollbar.set)    
-    
-    # Create a Label widget for the feedback prompt    
-    label = Label(root, text="Please enter your feedback:", font=font)    
-    label.pack()    
-    
-    # Create a Text widget for the feedback input    
-    feedback_input = Text(root, width=40, height=10, font=font, wrap="word")    
-    feedback_input.pack()    
-    
-    # Create a Button widget to submit the feedback    
-    button = Button(root, text="Submit", command=root.quit)    
-    button.pack(side='right')    
-    
-    root.mainloop()      
-    
-    # Get the feedback from the Text widget    
-    feedback = feedback_input.get("1.0", "end-1c")    
-    
-    root.destroy()      
-    return feedback    
+def show_code_and_get_feedback(code):       
+    if code is None:      
+        return None      
+      
+    root = tk.Tk()        
+    root.title("Generated Code")      
+      
+    # Use a larger font for the code and feedback prompt      
+    font = Font(family="Courier New", size=12)      
+      
+    # Create a Text widget to display the code      
+    text = Text(root, width=80, height=20, font=font, padx=10, pady=10)      
+    text.insert(END, code)      
+    text.pack(side="left", fill="both", expand=True)      
+      
+    # Create a Scrollbar widget for the Text widget      
+    scrollbar = Scrollbar(root, command=text.yview)      
+    scrollbar.pack(side="left", fill="y")      
+      
+    # Link the Text widget and the Scrollbar widget      
+    text.config(yscrollcommand=scrollbar.set)      
+      
+    # Create a Label widget for the feedback prompt      
+    label = Label(root, text="Please enter your feedback:", font=font, padx=10, pady=10)      
+    label.pack()      
+      
+    # Create a Text widget for the feedback input      
+    feedback_input = Text(root, width=40, height=10, font=font, wrap="word", padx=10, pady=10)      
+    feedback_input.pack()      
+      
+    # Create a Button widget to submit the feedback      
+    button = Button(root, text="Submit", command=root.quit, padx=10, pady=10)      
+    button.pack(side='right')      
+      
+    root.mainloop()        
+      
+    # Get the feedback from the Text widget      
+    feedback = feedback_input.get("1.0", "end-1c")      
+      
+    root.destroy()        
+    return feedback   
 
 
 def display_code(code):  
