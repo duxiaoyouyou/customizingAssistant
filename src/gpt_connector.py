@@ -31,10 +31,9 @@ class GPTConnector:
     
     def transform(self, requirement):  
         accessToken = self.get_access_token()   
-        print(colored("\nAccess token fetched, start transforming requirement...", 'blue'))
+        print(colored("\nAccess token fetched, start transforming ...", 'blue'))
         headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} 
 
-        requirement =  "Generate the java code block to fulfill the requirement: " + requirement 
         self.messages.append({"role": "user", "content": requirement})  
     
         data = {    
