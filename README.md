@@ -1,6 +1,6 @@
 1. continous improvement of generated code ( e.g. more comments, ut.. etc.)
 2. more window actions
-3. use LLM to check if cloud product update( via api/documents/wiki) compatible with customizing code
+3. check if customization code still applicable based on the new version of SAP products
 
 Obtain the update content of the cloud product from update logs or API documentation.
 Use a Language Model (LLM) to understand the semantics of the updates.

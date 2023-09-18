@@ -15,12 +15,11 @@ class CodeGenerator:
         if(requirement == None):
             return None
         
-        text = "\nStart generating code based on user's requirement... \n"
+        text = "\nStart generating answer based on user's requirement... \n"
         print(colored(text, 'blue'))
         tts = TextToSpeech(text)  
         tts.convert_text_to_speech()  
         
-        code = "\n" + self.gptConnector.transform(requirement)
+        return self.gptConnector.transform(requirement)
         
-        return code
   

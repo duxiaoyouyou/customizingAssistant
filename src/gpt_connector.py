@@ -31,7 +31,7 @@ class GPTConnector:
     
     def transform(self, requirement):  
         accessToken = self.get_access_token()   
-        print(colored("\nAccess token got, start transforming requirement to code...", 'blue'))
+        print(colored("\nAccess token got, start transforming requirement...", 'blue'))
         headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken} 
 
         requirement =  "Generate the java code block to fulfill the requirement: " + requirement 
@@ -51,7 +51,7 @@ class GPTConnector:
         # Save the assistant's message to be the context
         self.messages.append({"role": "assistant", "content":  content})  
          
-        text = "\nCode generated as below: "
+        text = "\nResult generated as below: "
         print(colored(text, 'blue'))
         tts = TextToSpeech(text)  
         tts.convert_text_to_speech() 

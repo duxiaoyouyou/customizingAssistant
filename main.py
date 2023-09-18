@@ -10,14 +10,13 @@ from src.voice_input_ui import VoiceInputUI
 from src.gpt_connector import GPTConnector
 import tkinter as tk
 from tkinter import simpledialog, messagebox 
-
 from tkinter import Text, Scrollbar, Button, Entry, Label, Toplevel, END  
 from tkinter.font import Font  
 
-from update_checker import UpdateChecker
-from update_interpreter import UpdateInterpreter
-from impact_analyzer import ImpactAnalyzer
-from compatibility_checker  import CompatibilityChecker
+# from src.update_checker import UpdateChecker
+# from src.update_interpreter import UpdateInterpreter
+# from src.impact_analyzer import ImpactAnalyzer
+# from src.compatibility_checker  import CompatibilityChecker
   
 
 def main():
@@ -28,51 +27,76 @@ def main():
     method_name = 'getBinObj'  
     method_signature = get_method_signature(file_path, class_name, method_name) 
     
+    messages = [{"role": "system", "content": "You are a senior java developer."}]      
+    gptConnector = GPTConnector(messages)
+    codeGenerator = CodeGenerator(method_signature, gptConnector)
+   
+   
     window = tk.Tk()  
     window.attributes('-topmost', True)   
     voiceInputUI = VoiceInputUI(window)  
     window.mainloop()  
       
     # Get voice input from user  
-    #voice_input = #voiceInputUI.voice_input
-    voice_input =  " We have to move 60 handling units from storage bin C to storage bin D in warehouse 100. " \
-         f"This should be completed by 8 p.m. tomorrow." \
-         f"Therefore, I need you to create a warehouse task for me."
-           
-    requirement = voice_input + "in the method: " + method_signature
-    requirement += ".\nEnsure only standard EWM fields are included."      
-         
-    integrator = CodeIntegrator(file_path) 
-         
-    system_message = f"You will simply generate the jave codes." \
-                f"You will NOT generate the method signature, returning statement, or big brackets. "  \
-                    f"Everytime the newly generated code MUST be compliant with the original code. " 
-    messages = [{"role": "system", "content": system_message}]  
-    
-    original_code = integrator.read_method_code(class_name, method_name)
-    messages.append({"role": "assistant", "content": "original code: \n" + original_code})  
-    
-      
-    gptConnector = GPTConnector(messages)
-    codeGenerator = CodeGenerator(method_signature, gptConnector)
-    
-    # generate code
-    customized_code = codeGenerator.generate_code(requirement);
-    
-    # generate comments
-    feedback = show_code_and_get_feedback(customized_code)
-    # feedback = "add more comments."  
-    customized_code = codeGenerator.generate_code(feedback)  
-    integrator.integrate_enhancement(class_name, method_name, customized_code) 
-    
-    # unit test
-    feedback = show_code_and_get_feedback(customized_code)
-    # feedback = "add a ut method for the code with imports"  
-    ut_code = codeGenerator.generate_code(feedback)  
-    
-    display_code(ut_code)
+    #requirement = #voiceInputUI.voice_input
+    requirement =  " We have a new storage bin in warehouse 100. " \
+         f"This storage bin is 50 cm long and 60 cm wide, located at the center of the warehouse." \
+         f"Create such a storage bin instance and return it"
+    requirement = requirement + "in the method: " + method_signature
   
-    integrator.add_method_to_class(class_name, ut_code)
+    prompt = f"""
+        You will be provided with the user requirement to generate codes in a java method. \
+        The requirement is delimited by triple quotes. \
+        You task is to generate code in a consistant style, following the criteria below: \
+        1. Your answer should only contain the java codes and comments, which makes the method grammartically correct
+        2. DO NOT generate anything other than the codes, no method signature, no expressions ahead, no big brackets. \      
+        3. Ensure the generated code compatible with the method signature \
+        4. Ensure the returning object compatible with the output of the method \
+        5. Ensure there are no bugs or security issues in the code \
+        6. Ensure only standard EWM fields are included \
+            
+        # \"\"\"    {requirement} \"\"\" \
+            
+        Examples delimited by triple hyphens
+        --- 
+            Requirement: simply return null
+            code generated: return null
+            Requirement: get the current time
+            code generated: Instant currentTime = Instant.now()
+        ---      \
+        
+       """   
+     
+    # generate code
+    customized_code = codeGenerator.generate_code(prompt);
+    
+    # feedback = "add more comments."
+    feedback = show_code_and_get_feedback(customized_code)
+    customized_code = codeGenerator.generate_code(feedback)  
+    
+    # feedback = "OK, replace the code in the method with the newly generated one." 
+    feedback = show_code_and_get_feedback(customized_code)
+    prompt = f"""
+        You will be provided with the user feedback delimited by triple quotes. \
+        You task is to generate answer to tell the if the user wants to replace the new code with the old one
+        Your answer will be in a consistant format, following the criteria below: \
+        1. If the user wants to replace his code with the newly generated code, simply return \"replace\". \
+        2. If the user does not want to take the new code, simply return \"keep\". \      
+       
+        \"\"\" {feedback} \"\"\"      
+        
+        Examples delimited by triple hyphens
+        --- 
+            feedback: Fine, I will take the new code
+            answer: replace
+            feedback: I want to discard the new code
+            answer: keep
+        --- 
+       """
+    command = codeGenerator.generate_code(prompt)
+    if "replace" in command:
+        integrator = CodeIntegrator(file_path) 
+        integrator.replace_method_code(class_name, method_name, customized_code)
     
     file_dir = os.path.dirname(file_path)  
     file_name = os.path.basename(file_path) 
@@ -81,22 +105,27 @@ def main():
     manager = VersionManager(file_dir, backup_directory, file_name)   
     manager.backup_code()  
     
-    # simulating version upgrade....
+    # rolling back the code to simulate version upgrade....
     
     manager.restore_code()  
    
-    checker = UpdateChecker('http://example.com/update')  
-    update_content = checker.get_update_content()  
+ 
+def judge_compatibility():
+    pass
+    # checker = UpdateChecker('http://example.com/update')  
+    # update_content = checker.get_update_content()  
       
-    interpreter = UpdateInterpreter()  
-    update_interpretation = interpreter.interpret_update(update_content)  
+    # interpreter = UpdateInterpreter()  
+    # update_interpretation = interpreter.interpret_update(update_content)  
      
-    custom_code = "your_custom_code_here"  
-    analyzer = ImpactAnalyzer(custom_code)  
-    analyzer.analyze_impact(update_interpretation)  
+    # custom_code = "your_custom_code_here"  
+    # analyzer = ImpactAnalyzer(custom_code)  
+    # analyzer.analyze_impact(update_interpretation)  
      
-    checker = CompatibilityChecker(custom_code, update_interpretation)  
-    checker.check_compatibility()  
+    # checker = CompatibilityChecker(custom_code, update_interpretation)  
+    # checker.check_compatibility()  
+    
+
 
 
 def get_method_signature(file_path, class_name, method_name):  
