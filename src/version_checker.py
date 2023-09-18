@@ -7,23 +7,24 @@ from sklearn.model_selection import train_test_split
 from .gpt_connector import GPTConnector
   
 class VersionChecker:  
-    def __init__(self, csv_file, custom_feature_description):  
+    def __init__(self, csv_file, requirement):  
         self.csv_file = csv_file  
-        self.custom_feature_description = custom_feature_description
+        self.requirement = requirement
         self.nlp = spacy.load('en_core_web_sm')  
         self.model = self._train_model()  
+        self.feature_description = self.get_feature_description(requirement) 
+  
   
     def check_version(self):  
         with open(self.csv_file, 'r') as file:  
             reader = csv.DictReader(file)  
             for row in reader:  
-                similarity_score = self._get_similarity(row['description'], self.custom_feature_description)  
+                similarity_score = self._get_similarity(row['description'], self.feature_description)  
                 if similarity_score > 0.8:  # assuming a threshold of 0.8 for similarity  
                     return f"The method might be affected by the version update. Similarity score: {similarity_score}"  
         return f"The method is not affected by the version update."  
   
       
-  
     def _get_similarity(self, text1, text2):  
         vectorizer = CountVectorizer().fit_transform([text1, text2])  
         vectors = vectorizer.toarray()  
@@ -42,7 +43,7 @@ class VersionChecker:
         return model  
     
     
-    def get_feature_description(requirement):
+    def get_feature_description(self, requirement):
          messages = [{"role": "system", "content": "You are a senior EWM consultant."}]      
          gptConnector = GPTConnector(messages)
          prompt = f"""
@@ -111,17 +112,3 @@ class VersionChecker:
         ]  
         return dataset
 
-def main():
-    # Usage  
-    file_path = "C:\\work\\EWM\\AI\\customizingAssistant\\wr_upgrade.csv"; 
-    requirement =  " We have a new storage bin in warehouse 100. " \
-            f"This storage bin is 50 cm long and 60 cm wide, located at the center of the warehouse." \
-            f"Create such a storage bin instance and return it"
-    
-    checker = VersionChecker(file_path, requirement)  
-    print(checker.check_version())
-
-
-if __name__ == '__main__':  
-    #app.run(debug=True) 
-    main() 

@@ -12,6 +12,7 @@ import tkinter as tk
 from tkinter import simpledialog, messagebox 
 from tkinter import Text, Scrollbar, Button, Entry, Label, Toplevel, END  
 from tkinter.font import Font  
+from src.version_checker import VersionChecker
 
 
 def main():
@@ -171,8 +172,21 @@ def display_code(code):
     root = tk.Tk()  
     root.withdraw()  # Hide the main window  
     messagebox.showinfo("Generated Code", code)  
+    
+def check():
+    # Usage  
+    file_path = "C:\\work\\EWM\\AI\\customizingAssistant\\wr_upgrade.csv"; 
+    requirement =  " We have a new storage bin in warehouse 100. " \
+            f"This storage bin is 50 cm long and 60 cm wide, located at the center of the warehouse." \
+            f"Create such a storage bin instance and return it"
+    
+    checker = VersionChecker(file_path, requirement)  
+    print(checker.check_version())
+    
+    file_path = "C:\\work\\EWM\\AI\\customizingAssistant\\wi_upgrade.csv"; 
+    
+
 
     
 if __name__ == '__main__':  
-    #app.run(debug=True) 
-    main() 
+    check()
