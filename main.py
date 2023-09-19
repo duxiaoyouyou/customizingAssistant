@@ -185,6 +185,8 @@ def check():
     
     file_path = "C:\\work\\EWM\\AI\\customizingAssistant\\wi_upgrade.csv"; 
     
+    checker = VersionChecker(file_path, requirement)  
+    print(checker.check_version())
 
 
     

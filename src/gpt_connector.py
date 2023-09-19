@@ -52,8 +52,8 @@ class GPTConnector:
          
         text = "\nResult generated as below: "
         print(colored(text, 'blue'))
-        tts = TextToSpeech(text)  
-        tts.convert_text_to_speech() 
+        # tts = TextToSpeech(text)  
+        # tts.convert_text_to_speech() 
         print(content)
     
         return content  
