@@ -9,45 +9,65 @@ from sklearn.model_selection import GridSearchCV, cross_val_score
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from .data_collector import DataCollector
 import json
-
+import pandas as pd
   
 class VersionChecker:  
-    def __init__(self, csv_file, requirement):  
-        self.csv_file = csv_file  
-        self.requirement = requirement
-        self.nlp = spacy.load('en_core_web_sm')
-        self.feature_description = self.get_feature_description(requirement)   
-        self.model, self.vectorizer = self._train_model()  
+    def __init__(self):  
+        # self.nlp = spacy.load('en_core_web_sm')
+        # self.model, self.vectorizer = self._train_model()     
+        messages = [{"role": "system", "content": "You are a senior EWM consultant."}]      
+        self.gptConnector = GPTConnector(messages)
         
-  
-    def check_version(self):  
-        with open(self.csv_file, 'r') as file:  
-            reader = csv.DictReader(file)  
-            for row in reader:  
-                similarity_score = self._get_similarity(row['Description'], self.feature_description)  
-                if similarity_score > 0.8:  # assuming a threshold of 0.8 for similarity  
-                    return f"The method might be affected by the version update.\nSimilarity score: {similarity_score}"  
-        return f"The method is not affected by the version update.\nSimilarity score: {similarity_score}"  
-  
+ 
+    def check_version(self, file, custom_requirement):  
+        df = pd.read_excel(file)  
+        feature_descriptions = list(df['Description'])  
+    
+        # Construct the prompt  
+       
+        prompt = f"""
+        I have a new features description list delimited by triple quotes. \
+            \"\"\" {feature_descriptions} \"\"\" \
+        And I have my custom code to implement my requirement. \
+        My feature descritpion is delimited by triple hyphens. \
+        --- 
+            {custom_requirement} 
+        ---     
+        You task is to judege: Will any of the new features possibly affect the functionality of my custom code? \
+        If yes, list out all the features which will affect the functionality of my custom code \
+        If no, return not affected  \
+       """
+        # Use the OpenAI API to generate a response  
+        response_text = self.gptConnector.transform(prompt)  
+    
+        # Parse the response to extract the features that will affect the code  
+        affected_features = []  
+        if 'yes' in response_text.lower():  
+            response_lines = response_text.split('\n')  
+            for line in response_lines:  
+                if 'feature:' in line.lower():  
+                    affected_features.append(line)  
+    
+        return affected_features  
+
+
     
     def get_feature_description(self, requirement):
-        messages = [{"role": "system", "content": "You are a senior EWM consultant."}]      
-        gptConnector = GPTConnector(messages)
         prompt = f"""
         You will be provided with the user requirement delimited by triple quotes. \
-        You task is to extract the EWM key words from the requirement and seperate them by ; \
-
+        You task is to extract the EWM key words from the requirement \
+        You will only return the EWM key words delimited by ; \
         Examples delimited by triple hyphens
         --- 
             Requirement: I want to create a warehouse task which starts tomorrow
-            key words: warehouse task
+            warehouse task
             Requirement: I have to move the resources from here to there
-            key words: resource
+            resource
             Requirement: \"\"\"  {requirement} \"\"\" \
         ---     
         
        """   
-        feature_descrption = gptConnector.transform(prompt)
+        feature_descrption = self.gptConnector.transform(prompt)
         return feature_descrption
    
    
@@ -55,7 +75,6 @@ class VersionChecker:
         vectorizer = CountVectorizer().fit_transform([text1, text2])    
         vectors = vectorizer.toarray()    
         return cosine_similarity(vectors)[0][1]    
-    
     
  
     def _train_model(self):  

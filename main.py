@@ -14,7 +14,10 @@ from tkinter import Text, Scrollbar, Button, Entry, Label, Toplevel, END
 from tkinter.font import Font  
 from src.version_checker import VersionChecker
 
-
+requirement =  " We have a new storage bin in warehouse 100. " \
+         f"This storage bin is 50 cm long and 60 cm wide, located at the center of the warehouse." \
+         f"Create such a storage bin instance and return it"
+    
 def main():
     print(colored("\nCustomizing assistant is starting...\n", 'green'))
          
@@ -27,7 +30,6 @@ def main():
     gptConnector = GPTConnector(messages)
     codeGenerator = CodeGenerator(method_signature, gptConnector)
    
-   
     window = tk.Tk()  
     window.attributes('-topmost', True)   
     voiceInputUI = VoiceInputUI(window)  
@@ -35,9 +37,6 @@ def main():
       
     # Get voice input from user  
     #requirement = #voiceInputUI.voice_input
-    requirement =  " We have a new storage bin in warehouse 100. " \
-         f"This storage bin is 50 cm long and 60 cm wide, located at the center of the warehouse." \
-         f"Create such a storage bin instance and return it"
     requirement = requirement + "in the method: " + method_signature
   
     prompt = f"""
@@ -106,7 +105,6 @@ def main():
     manager.restore_code()  
 
 
-
 def get_method_signature(file_path, class_name, method_name):  
     with open(file_path, 'r') as file:  
         java_code = file.read()  
@@ -173,22 +171,18 @@ def display_code(code):
     root.withdraw()  # Hide the main window  
     messagebox.showinfo("Generated Code", code)  
     
-def check():
-    # Usage  
-    file_path = "C:\\work\\EWM\\AI\\customizingAssistant\\wr_upgrade.csv"; 
-    requirement =  " We have a new storage bin in warehouse 100. " \
-            f"This storage bin is 50 cm long and 60 cm wide, located at the center of the warehouse." \
-            f"Create such a storage bin instance and return it"
     
-    checker = VersionChecker(file_path, requirement)  
-    print(checker.check_version())
+def checkUpgradeCompatibility():
+    checker = VersionChecker()  
     
-    file_path = "C:\\work\\EWM\\AI\\customizingAssistant\\wi_upgrade.csv"; 
+    file_path = "C:\\work\\EWM\\AI\\customizingAssistant\\wr_upgrade.xlsx";  
+    relevance = checker.check_version(file_path, requirement)
+    print(colored(relevance, 'blue'))
     
-    checker = VersionChecker(file_path, requirement)  
-    print(checker.check_version())
-
-
+    file_path = "C:\\work\\EWM\\AI\\customizingAssistant\\wi_upgrade.xlsx"; 
+    relevance = checker.check_version(file_path, requirement)
+    print(colored(relevance, 'blue'))
+    
     
 if __name__ == '__main__':  
-    check()
+    checkUpgradeCompatibility()
